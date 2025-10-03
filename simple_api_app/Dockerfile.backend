@@ -1,0 +1,23 @@
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# Copy project metadata and source, then install using PEP 621 metadata
+COPY pyproject.toml /app/
+COPY README.md /app/
+COPY app /app/app
+
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir .
+
+# Include database directory (mounted in compose as a volume in dev)
+COPY database /app/database
+
+EXPOSE 8000
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
